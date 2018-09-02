@@ -34,6 +34,8 @@ package com.jme3.gde.core.filters.impl;
 import com.jme3.gde.core.filters.AbstractFilterNode;
 import com.jme3.gde.core.filters.FilterNode;
 import com.jme3.post.Filter;
+import com.jme3.shadow.AbstractShadowFilter;
+import java.lang.reflect.Method;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Node;
 import org.openide.nodes.Sheet;
@@ -45,7 +47,6 @@ import org.openide.nodes.Sheet;
  */
 @org.openide.util.lookup.ServiceProvider(service = FilterNode.class)
 public class JmeFilter extends AbstractFilterNode {
-
     
     public JmeFilter() {
     }
@@ -59,19 +60,35 @@ public class JmeFilter extends AbstractFilterNode {
     @Override
     protected Sheet createSheet() {
         Sheet sheet = super.createSheet();
-        Sheet.Set set = Sheet.createPropertiesSet();
-        set.setDisplayName(filter.getName());
-        set.setName(Node.class.getName());
         
-        Filter obj = filter;
-        if (obj == null) {
+        if (filter == null) {
+            Sheet.Set set = Sheet.createPropertiesSet();
             return sheet;
         }
-
-        createFields(filter.getClass(), set, obj);
-        sheet.put(set);
+        
+        filter.setName(filter.getClass().getSimpleName());
+        Class<?> c = filter.getClass();
+        
+        do {
+            // The Filter class is already processed in AbstractFilterNode#createSheet
+            if (c.equals(Filter.class) || c.equals(Object.class)) {
+                c = c.getSuperclass();
+                continue;
+            }
+            
+            Sheet.Set set = Sheet.createPropertiesSet();
+            set.setName(c.getName()); // A set's name is it's unique identifier
+            set.setDisplayName(c.getName());
+            
+            Method[] methods = createFields(c, set, filter);
+            createMethods(c, set, filter, methods);
+            
+            sheet.put(set);
+            
+            c = c.getSuperclass();
+        } while (c != null);
+        
         return sheet;
-
     }
 
     @Override

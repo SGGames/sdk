@@ -207,7 +207,7 @@ public class AssetDataObject extends MultiDataObject {
      * Saves this asset, when a saveExtension is set, saves it as a brother file
      * with that extension.
      *
-     * @throws IOException
+     * @throws IOException When we cannot write to the file for unknown reasons
      */
     public synchronized void saveAsset() throws IOException {
         if (savable == null) {
@@ -239,9 +239,10 @@ public class AssetDataObject extends MultiDataObject {
             if (out != null) {
                 out.close();
             }
+            
+            progressHandle.finish();
+            setModified(false);
         }
-        progressHandle.finish();
-        setModified(false);
         logger.log(Level.INFO, "File {0} saved successfully", getPrimaryFile().getNameExt());
     }
 
@@ -255,7 +256,9 @@ public class AssetDataObject extends MultiDataObject {
             for (Iterator<AssetKey> it = assetKeyList.iterator(); it.hasNext();) {
                 AssetKey assetKey1 = it.next();
                 logger.log(Level.INFO, "Removing asset {0}, from cache via main asset {1}.", new Object[]{assetKey1.getName(), getName()});
-                mgr.deleteFromCache(assetKey1);
+                if (assetKey1.getCacheType() != null) {
+                    mgr.deleteFromCache(assetKey1);
+                }
             }
             savable = null;
         } else if (mgr == null) {
@@ -348,10 +351,10 @@ public class AssetDataObject extends MultiDataObject {
 
     protected static class AssetListListener implements AssetEventListener {
 
-        private AssetDataObject obj;
-        private List<FileObject> assetList;
-        private List<AssetKey> assetKeyList;
-        private List<AssetKey> failedList;
+        private final AssetDataObject obj;
+        private final List<FileObject> assetList;
+        private final List<AssetKey> assetKeyList;
+        private final List<AssetKey> failedList;
         private Thread loadingThread;
 
         public AssetListListener(AssetDataObject obj, List<FileObject> assetList, List<AssetKey> assetKeyList, List<AssetKey> failedList) {
@@ -361,9 +364,11 @@ public class AssetDataObject extends MultiDataObject {
             this.failedList = failedList;
         }
 
+        @Override
         public void assetLoaded(AssetKey ak) {
         }
 
+        @Override
         public void assetRequested(AssetKey ak) {
             ProjectAssetManager pm = obj.getLookup().lookup(ProjectAssetManager.class);
             if (pm == null || loadingThread != Thread.currentThread()) {
@@ -376,6 +381,7 @@ public class AssetDataObject extends MultiDataObject {
             }
         }
 
+        @Override
         public void assetDependencyNotFound(AssetKey ak, AssetKey ak1) {
             ProjectAssetManager pm = obj.getLookup().lookup(ProjectAssetManager.class);
             if (pm == null || loadingThread != Thread.currentThread()) {

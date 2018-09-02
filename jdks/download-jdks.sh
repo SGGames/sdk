@@ -3,8 +3,9 @@
 #Author MeFisto94
 set -e # Quit on Error
 
-jdk_version="8u111"
-jdk_build_version="b14"
+jdk_version="8u161"
+jdk_build_version="b12"
+jdk_hash=2f38c3b165be4555a1fa6e98c45e0808
 platforms=( "linux-x64.tar.gz" "linux-i586.tar.gz" "windows-i586.exe" "windows-x64.exe" "macosx-x64.dmg" )
 
 function install_xar {
@@ -62,7 +63,7 @@ function download_jdk {
     then
         echo "<<< Already existing, SKIPPING."
     else
-        curl -L  -s -o downloads/jdk-$1 http://download.oracle.com/otn-pub/java/jdk/$jdk_version-$jdk_build_version/jdk-$jdk_version-$1 --cookie "gpw_e24=http%3A%2F%2Fwww.oracle.com%2F; oraclelicense=accept-securebackup-cookie" #--progress-bar
+        curl -s -o downloads/jdk-$1 -L -b oraclelicense=accept-securebackup-cookie http://download.oracle.com/otn-pub/java/jdk/$jdk_version-$jdk_build_version/$jdk_hash/jdk-$jdk_version-$1 #--progress-bar
         echo "<<< OK!"
     fi
 }
@@ -79,7 +80,7 @@ function unpack_mac_jdk {
     fi
 
     download_jdk macosx-x64.dmg
-
+	
     mkdir -p MacOS
     cd MacOS
 
@@ -90,13 +91,18 @@ function unpack_mac_jdk {
         hdiutil detach /Volumes/JDK*
     else # Linux
         7z x ../downloads/jdk-macosx-x64.dmg > /dev/null
-        # The following seems dependent of the 7zip version. If not they also changed their MacOSX Installer
-        7z x 4.hfs > /dev/null
-        install_xar
-        ./xar-1.5.2/src/xar -xf JDK*/JDK*.pkg
+        # The following seems dependent of the 7zip version. Travis on Version 9.20 extracts all partitions, where as at least version 16.02 is automatically extracting 4.hfs
+        if [ -f 4.hfs ]; then
+            7z x 4.hfs > /dev/null
+        fi
+        #install_xar
+        #./xar-1.5.2/src/xar -xf JDK*/JDK*.pkg
+        7z x JDK*/JDK*.pkg  > /dev/null
+        cd jdk1*.pkg
     fi
 
-    cd jdk1*.pkg
+    #cd JDK*
+
     cat Payload | gunzip -dc | cpio -i
     #mkdir -p Contents/jdk/
     cd Contents/
@@ -271,9 +277,31 @@ mkdir -p local/$jdk_version-$jdk_build_version/compiled
 
 cd local/$jdk_version-$jdk_build_version
 
-build_mac_jdk
-build_other_jdk windows x86 i586
-build_other_jdk windows x64 x64
-build_other_jdk linux x86 i586
-build_other_jdk linux x64 x64
+if [ "x$TRAVIS" != "x" ]; then
+    if [ "x$BUILD_X64" != "x" ]; then
+        build_other_jdk windows x64 x64
+        build_other_jdk linux x64 x64
+    else
+        # We have to save space at all cost, so force-delete x64 jdks, which might come from the build cache.
+        # that's bad because they won't be cached anymore, but we have to trade time for space.
+        rm -rf compiled/jdk-windows-x64.exe compiled/jdk-linux-x64.bin
+    fi
+    if [ "x$BUILD_X86" != "x" ]; then
+        build_other_jdk windows x86 i586
+        build_other_jdk linux x86 i586
+    else
+        rm -rf compiled/jdk-windows-x86.exe compiled/jdk-linux-x86.bin
+    fi
+    if [ "x$BUILD_OTHER" != "x" ]; then
+        build_mac_jdk
+    else
+        rm -rf compiled/jdk-macosx.zip
+    fi
+else
+    build_mac_jdk
+    build_other_jdk windows x86 i586
+    build_other_jdk windows x64 x64
+    build_other_jdk linux x86 i586
+    build_other_jdk linux x64 x64
+fi
 cd ../../

@@ -23,7 +23,9 @@ import com.jme3.gde.scenecomposer.tools.MoveTool;
 import com.jme3.gde.scenecomposer.tools.RotateTool;
 import com.jme3.gde.scenecomposer.tools.ScaleTool;
 import com.jme3.gde.scenecomposer.tools.SelectTool;
+import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
+import com.jme3.renderer.Camera;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import java.io.IOException;
@@ -72,6 +74,7 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
     ComposerCameraController camController;
     SceneComposerToolController toolController;
     SceneEditorController editorController;
+    CameraPositionTrackerAppState cameraPositionTrackerAppState;
     private SceneRequest sentRequest;
     private SceneRequest currentRequest;
     private final HelpCtx ctx = new HelpCtx("sdk.scene_composer");
@@ -98,6 +101,16 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
         sceneInfoPanel = new javax.swing.JPanel();
         sceneInfoLabel1 = new javax.swing.JLabel();
         sceneInfoLabel2 = new javax.swing.JLabel();
+        jSlider1 = new javax.swing.JSlider();
+        jSlider2 = new javax.swing.JSlider();
+        jSpinner1 = new javax.swing.JSpinner();
+        jSpinner2 = new javax.swing.JSpinner();
+        jLabel7 = new javax.swing.JLabel();
+        jLabel8 = new javax.swing.JLabel();
+        jLabel9 = new javax.swing.JLabel();
+        jLabel10 = new javax.swing.JLabel();
+        jLabel11 = new javax.swing.JLabel();
+        jLabel12 = new javax.swing.JLabel();
         jToolBar1 = new javax.swing.JToolBar();
         transformationTypeComboBox = new javax.swing.JComboBox();
         jSeparator9 = new javax.swing.JToolBar.Separator();
@@ -150,12 +163,80 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
 
         org.openide.awt.Mnemonics.setLocalizedText(sceneInfoLabel2, org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.sceneInfoLabel2.text")); // NOI18N
 
+        jSlider1.setMaximum(2000);
+        jSlider1.setMinimum(100);
+        jSlider1.setValue(1000);
+        jSlider1.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                jSlider1StateChanged(evt);
+            }
+        });
+
+        jSlider2.setMaximum(3000);
+        jSlider2.setMinimum(5);
+        jSlider2.setValue(1000);
+        jSlider2.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                jSlider2StateChanged(evt);
+            }
+        });
+
+        jSpinner1.setModel(new javax.swing.SpinnerNumberModel(0.1f, null, null, 0.01f));
+        jSpinner1.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                jSpinner1StateChanged(evt);
+            }
+        });
+
+        jSpinner2.setModel(new javax.swing.SpinnerNumberModel(500.0f, null, null, 1.0f));
+        jSpinner2.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                jSpinner2StateChanged(evt);
+            }
+        });
+
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel7, org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.jLabel7.text")); // NOI18N
+
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel8, org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.jLabel8.text")); // NOI18N
+
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel9, org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.jLabel9.text")); // NOI18N
+
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel10, org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.jLabel10.text")); // NOI18N
+
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel11, org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.jLabel11.text")); // NOI18N
+
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel12, org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.jLabel12.text")); // NOI18N
+
         javax.swing.GroupLayout sceneInfoPanelLayout = new javax.swing.GroupLayout(sceneInfoPanel);
         sceneInfoPanel.setLayout(sceneInfoPanelLayout);
         sceneInfoPanelLayout.setHorizontalGroup(
             sceneInfoPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(sceneInfoLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(sceneInfoLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(sceneInfoPanelLayout.createSequentialGroup()
+                .addGroup(sceneInfoPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel7)
+                    .addComponent(jLabel8))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(sceneInfoPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jSlider1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jSlider2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(sceneInfoPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jSpinner2)
+                    .addComponent(jSpinner1, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)))
+            .addGroup(sceneInfoPanelLayout.createSequentialGroup()
+                .addGroup(sceneInfoPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel9)
+                    .addComponent(jLabel10))
+                .addGap(34, 34, 34)
+                .addGroup(sceneInfoPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(sceneInfoPanelLayout.createSequentialGroup()
+                        .addComponent(jLabel12)
+                        .addGap(105, 105, 105))
+                    .addGroup(sceneInfoPanelLayout.createSequentialGroup()
+                        .addComponent(jLabel11)
+                        .addContainerGap(105, javax.swing.GroupLayout.PREFERRED_SIZE))))
         );
         sceneInfoPanelLayout.setVerticalGroup(
             sceneInfoPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -163,7 +244,31 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
                 .addComponent(sceneInfoLabel1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(sceneInfoLabel2)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(sceneInfoPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(sceneInfoPanelLayout.createSequentialGroup()
+                        .addGap(4, 4, 4)
+                        .addGroup(sceneInfoPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jSlider1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel7)))
+                    .addComponent(jSpinner1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(sceneInfoPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jSpinner2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(sceneInfoPanelLayout.createSequentialGroup()
+                        .addGroup(sceneInfoPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jSlider2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel8))
+                        .addGap(1, 1, 1)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(sceneInfoPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel9)
+                    .addComponent(jLabel11))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(sceneInfoPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel10)
+                    .addComponent(jLabel12))
+                .addGap(22, 22, 22))
         );
 
         jToolBar1.setFloatable(false);
@@ -436,10 +541,10 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
         fixedCheckBox.setEnabled(false);
         jToolBar3.add(fixedCheckBox);
 
-        radiusSpinner.setModel(new javax.swing.SpinnerNumberModel(Float.valueOf(0.5f), null, null, Float.valueOf(0.1f)));
+        radiusSpinner.setModel(new javax.swing.SpinnerNumberModel(0.5f, null, null, 0.1f));
         jToolBar3.add(radiusSpinner);
 
-        heightSpinner.setModel(new javax.swing.SpinnerNumberModel(Float.valueOf(1.8f), null, null, Float.valueOf(0.1f)));
+        heightSpinner.setModel(new javax.swing.SpinnerNumberModel(1.8f, null, null, 0.1f));
         jToolBar3.add(heightSpinner);
 
         org.openide.awt.Mnemonics.setLocalizedText(jLabel5, org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.jLabel5.text")); // NOI18N
@@ -665,6 +770,57 @@ private void jToggleSelectGeomActionPerformed(java.awt.event.ActionEvent evt) {/
         toolController.setTransformationType((String) transformationTypeComboBox.getSelectedItem());
     }//GEN-LAST:event_transformationTypeComboBoxActionPerformed
 
+    private void jSlider1StateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jSlider1StateChanged
+        // This is called, when the slider of the near plane has been dragged.
+        float near = ((float)jSlider1.getValue() / 1000f);
+        
+        // Prevent an endless loop of state changes
+        if (!FastMath.approximateEquals((Float)(jSpinner1.getValue()), near)) {
+            jSpinner1.setValue(near);
+        }
+    }//GEN-LAST:event_jSlider1StateChanged
+
+    private void jSlider2StateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jSlider2StateChanged
+        // This is called, when the slider of the far plane has been dragged.
+        float far = jSlider2.getValue();
+        
+        // Prevent an endless loop of state changes
+        if (!FastMath.approximateEquals((Float)(jSpinner2.getValue()), far)) {
+            jSpinner2.setValue(far);
+        }
+    }//GEN-LAST:event_jSlider2StateChanged
+
+    private void jSpinner1StateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jSpinner1StateChanged
+        // This is called, when the spinner of the near plane has been changed.
+        float near = ((float)jSlider1.getValue() / 1000f);
+        float spin = (Float)jSpinner1.getValue();
+        
+        // Prevent an endless loop of state changes and don't change the slider when the spinner
+        // has gone out of range, since this would lead to the slider's StateChanged overwriting the spinner again.
+        // but we want the spinner to be a free-form field
+        
+        if (spin <= 2000f && spin >= 100f && !FastMath.approximateEquals((Float)(jSpinner1.getValue()), near)) {
+            jSlider1.setValue((int)((Float)(jSpinner1.getValue()) * 1000f));
+        }
+        
+        final Camera cam = SceneApplication.getApplication().getCamera();
+        cam.setFrustumPerspective(45f, (float)cam.getWidth() / cam.getHeight(), spin, cam.getFrustumFar());
+    }//GEN-LAST:event_jSpinner1StateChanged
+
+    private void jSpinner2StateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jSpinner2StateChanged
+        // Prevent an endless loop of state changes and don't change the slider when the spinner
+        // has gone out of range, since this would lead to the slider's StateChanged overwriting the spinner again.
+        // but we want the spinner to be a free-form field
+        
+        float spin = (Float)jSpinner2.getValue();
+        if (spin <= 3000f && spin >= 5f && !FastMath.approximateEquals(spin, (float)jSlider2.getValue())) {
+            jSlider2.setValue((int)spin);
+        }
+        
+        final Camera cam = SceneApplication.getApplication().getCamera();
+        cam.setFrustumPerspective(45f, (float)cam.getWidth() / cam.getHeight(), cam.getFrustumNear(), spin);
+    }//GEN-LAST:event_jSpinner2StateChanged
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton camToCursorSelectionButton;
     private javax.swing.JButton createPhysicsMeshButton;
@@ -677,11 +833,17 @@ private void jToggleSelectGeomActionPerformed(java.awt.event.ActionEvent evt) {/
     private javax.swing.JButton jButton3;
     private javax.swing.JCheckBox jCheckBox1;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel11;
+    private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JToolBar.Separator jSeparator1;
@@ -693,6 +855,10 @@ private void jToggleSelectGeomActionPerformed(java.awt.event.ActionEvent evt) {/
     private javax.swing.JToolBar.Separator jSeparator7;
     private javax.swing.JToolBar.Separator jSeparator8;
     private javax.swing.JToolBar.Separator jSeparator9;
+    private javax.swing.JSlider jSlider1;
+    private javax.swing.JSlider jSlider2;
+    private javax.swing.JSpinner jSpinner1;
+    private javax.swing.JSpinner jSpinner2;
     private javax.swing.JTextField jTextField1;
     private javax.swing.JToggleButton jToggleGrid;
     private javax.swing.JToggleButton jToggleScene;
@@ -845,6 +1011,7 @@ private void jToggleSelectGeomActionPerformed(java.awt.event.ActionEvent evt) {/
     private void setSelectedObjectText(final String text) {
         java.awt.EventQueue.invokeLater(new Runnable() {
 
+            @Override
             public void run() {
                 if (text != null) {
                     ((TitledBorder) jPanel4.getBorder()).setTitle("Utilities - " + text);
@@ -1023,6 +1190,7 @@ private void jToggleSelectGeomActionPerformed(java.awt.event.ActionEvent evt) {/
     /*
      * SceneListener
      */
+    @Override
     public void sceneOpened(SceneRequest request) {
         if (request.equals(sentRequest)) {
             currentRequest = request;
@@ -1045,6 +1213,9 @@ private void jToggleSelectGeomActionPerformed(java.awt.event.ActionEvent evt) {/
             camController.setToolController(toolController);
             camController.setMaster(this);
             camController.enable();
+            
+            cameraPositionTrackerAppState = new CameraPositionTrackerAppState(jLabel11, jLabel12);
+            SceneApplication.getApplication().getStateManager().attach(cameraPositionTrackerAppState);
 
             toolController.createOnTopToolNode();
             SelectTool tool = new SelectTool();
@@ -1060,6 +1231,7 @@ private void jToggleSelectGeomActionPerformed(java.awt.event.ActionEvent evt) {/
             final SpatialAssetDataObject dobj = ((SpatialAssetDataObject) currentRequest.getDataObject());
             listener = new ProjectAssetManager.ClassPathChangeListener() {
 
+                @Override
                 public void classPathChanged(final ProjectAssetManager manager) {
                     if (dobj.isModified()) {
                         Confirmation msg = new NotifyDescriptor.Confirmation(
@@ -1078,6 +1250,7 @@ private void jToggleSelectGeomActionPerformed(java.awt.event.ActionEvent evt) {/
                     }
                     Runnable call = new Runnable() {
 
+                        @Override
                         public void run() {
                             ProgressHandle progressHandle = ProgressHandle.createHandle("Reloading Scene..");
                             progressHandle.start();
@@ -1087,6 +1260,7 @@ private void jToggleSelectGeomActionPerformed(java.awt.event.ActionEvent evt) {/
                                 if (asset != null) {
                                     java.awt.EventQueue.invokeLater(new Runnable() {
 
+                                        @Override
                                         public void run() {
                                             SceneComposerTopComponent composer = SceneComposerTopComponent.findInstance();
                                             composer.openScene(asset, dobj, manager);
@@ -1111,6 +1285,7 @@ private void jToggleSelectGeomActionPerformed(java.awt.event.ActionEvent evt) {/
         }
     }
 
+    @Override
     public void sceneClosed(SceneRequest request) {
         if (request.equals(currentRequest)) {
             setActivatedNodes(new org.openide.nodes.Node[]{});
@@ -1119,17 +1294,23 @@ private void jToggleSelectGeomActionPerformed(java.awt.event.ActionEvent evt) {/
                 listener = null;
             }
             SceneApplication.getApplication().removeSceneListener(this);
+            SceneApplication.getApplication().getStateManager().detach(cameraPositionTrackerAppState);
             currentRequest = null;
             setSceneInfo(null, null, false);
             cleanupControllers();
         }
     }
 
+    @Override
     public void previewCreated(PreviewRequest request) {
     }
 
     public void displayInfo(String info) {
         Message msg = new NotifyDescriptor.Message(info);
         DialogDisplayer.getDefault().notifyLater(msg);
+    }
+
+    public SceneComposerToolController getToolController() {
+        return toolController;
     }
 }
