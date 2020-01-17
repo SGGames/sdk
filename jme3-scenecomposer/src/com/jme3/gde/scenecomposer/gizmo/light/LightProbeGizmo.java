@@ -47,7 +47,6 @@ import com.jme3.math.Vector3f;
  */
 public class LightProbeGizmo extends NodeCallback {
 
-    private final Vector3f lastPos = new Vector3f();
     private final LightProbe lightProbe;
     private final JmeLightProbe jmeProbe;    
 
@@ -92,13 +91,13 @@ public class LightProbeGizmo extends NodeCallback {
      */
     @Override
     public void onResize(Vector3f oldScale, Vector3f newScale) {
-        ((BoundingSphere)jmeProbe.getLightProbe().getBounds()).setRadius(LightGizmoFactory.scaleToRadius(newScale));
+        jmeProbe.getLightProbe().getArea().setRadius(LightGizmoFactory.scaleToRadius(newScale));
     }
 
     /**
      * Handles the SceneComposers Rotate "Requests".
      * Essentially this is called when setLocalRotation is invoked on the Gizmo.
-     * We then need to ensure that the Propertries update and that the light
+     * We then need to ensure that the Properties update and that the light
      * itself updates (since the SceneComposer actually works with our Gizmos).
      * 
      * @param oldRotation The Rotation as it was before

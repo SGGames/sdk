@@ -12,7 +12,7 @@
                     <compile-dependency/>
                     <run-dependency>
                         <release-version>1</release-version>
-                        <specification-version>3.2.0</specification-version>
+                        <specification-version>3.3.0</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -68,15 +68,6 @@
                 </dependency>
                 <dependency>
                     <code-name-base>org.netbeans.modules.java.hints</code-name-base>
-                    <build-prerequisite/>
-                    <compile-dependency/>
-                    <run-dependency>
-                        <release-version>1</release-version>
-                        <implementation-version/>
-                    </run-dependency>
-                </dependency>
-                <dependency>
-                    <code-name-base>org.netbeans.modules.java.hints.legacy.spi</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>
